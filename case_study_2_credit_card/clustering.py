@@ -117,3 +117,33 @@ plt.show()
 
 
 
+
+
+from sklearn.cluster import DBSCAN
+
+# --- DBSCAN Clustering ---
+dbscan = DBSCAN(eps=0.8, min_samples=10)
+df['DBSCAN_Cluster'] = dbscan.fit_predict(X_pca)
+
+print("\nDBSCAN cluster counts (-1 = noise/outliers):")
+print(df['DBSCAN_Cluster'].value_counts())
+
+n_clusters_dbscan = len(set(df['DBSCAN_Cluster'])) - (1 if -1 in df['DBSCAN_Cluster'].values else 0)
+print(f"\nNumber of clusters found by DBSCAN: {n_clusters_dbscan}")
+
+if n_clusters_dbscan > 1:
+    mask = df['DBSCAN_Cluster'] != -1
+    dbscan_silhouette = silhouette_score(X_pca[mask], df['DBSCAN_Cluster'][mask])
+    print(f"DBSCAN Silhouette Score (excluding noise): {dbscan_silhouette:.3f}")
+    print(f"Points classified as noise: {(df['DBSCAN_Cluster'] == -1).sum()} out of {len(df)}")
+
+# Visualize DBSCAN clusters using first 2 PCA components
+plt.figure(figsize=(10, 6))
+scatter = plt.scatter(X_pca[:, 0], X_pca[:, 1], c=df['DBSCAN_Cluster'], cmap='tab10', s=20, alpha=0.6)
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+plt.title('Credit Card Customer Segments - DBSCAN Clustering')
+plt.colorbar(scatter, label='Cluster (-1 = noise)')
+plt.savefig('dbscan_cluster_plot.png')
+print("\nDBSCAN cluster plot saved as dbscan_cluster_plot.png")
+plt.show()
