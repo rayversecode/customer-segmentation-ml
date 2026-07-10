@@ -139,3 +139,40 @@ plt.colorbar(scatter, label='Cluster')
 plt.savefig('hc_cluster_plot.png')
 print("\nHC cluster plot saved as hc_cluster_plot.png")
 plt.show()
+
+
+
+
+
+
+
+from sklearn.cluster import DBSCAN
+
+# --- DBSCAN Clustering ---
+dbscan = DBSCAN(eps=0.5, min_samples=5)
+df['DBSCAN_Cluster'] = dbscan.fit_predict(X_scaled)
+
+print("\nDBSCAN cluster counts (-1 = noise/outliers):")
+print(df['DBSCAN_Cluster'].value_counts())
+
+# Only compute silhouette score if more than 1 cluster found (excluding noise)
+n_clusters_dbscan = len(set(df['DBSCAN_Cluster'])) - (1 if -1 in df['DBSCAN_Cluster'].values else 0)
+print(f"\nNumber of clusters found by DBSCAN: {n_clusters_dbscan}")
+
+if n_clusters_dbscan > 1:
+    # Exclude noise points for silhouette calculation
+    mask = df['DBSCAN_Cluster'] != -1
+    dbscan_silhouette = silhouette_score(X_scaled[mask], df['DBSCAN_Cluster'][mask])
+    print(f"DBSCAN Silhouette Score (excluding noise): {dbscan_silhouette:.3f}")
+
+# Visualize DBSCAN clusters
+plt.figure(figsize=(10, 6))
+scatter = plt.scatter(df['Annual Income (k$)'], df['Spending Score (1-100)'],
+                       c=df['DBSCAN_Cluster'], cmap='tab10', s=60)
+plt.xlabel('Annual Income (k$)')
+plt.ylabel('Spending Score (1-100)')
+plt.title('Customer Segments - DBSCAN Clustering')
+plt.colorbar(scatter, label='Cluster (-1 = noise)')
+plt.savefig('dbscan_cluster_plot.png')
+print("\nDBSCAN cluster plot saved as dbscan_cluster_plot.png")
+plt.show()
