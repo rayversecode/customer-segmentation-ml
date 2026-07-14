@@ -6,7 +6,6 @@ st.set_page_config(page_title="Customer Segmentation", layout="wide")
 
 
 
-
 st.markdown("""
     <style>
     .main { padding-top: 2rem; }

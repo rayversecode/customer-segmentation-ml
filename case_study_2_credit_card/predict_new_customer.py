@@ -20,8 +20,9 @@ def predict_cluster(values):
     cluster = model.predict(input_scaled)[0]
     return cluster, cluster_names.get(cluster, "Unknown")
 
+
 if __name__ == "__main__":
-    print("💳 Credit Card Customer Segment Predictor")
+    print("Credit Card Customer Segment Predictor")
     print("Enter a new customer's details:\n")
 
     while True:
@@ -32,13 +33,13 @@ if __name__ == "__main__":
                 values.append(val)
 
             cluster_num, cluster_name = predict_cluster(values)
-            print(f"\n➡️ Predicted Segment: Cluster {cluster_num} — {cluster_name}\n")
+            print(f"\nPredicted Segment: Cluster {cluster_num} - {cluster_name}\n")
 
         except ValueError:
             print("Please enter valid numbers.\n")
 
         again = input("Try another customer? (y/n): ")
-        if again.lower() != 'yes':
+        if again.lower() != 'y':
             break
 
     print("Done!")

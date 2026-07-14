@@ -1,11 +1,15 @@
 import joblib
 import numpy as np
 
-# Load the trained model and scaler
+
+
+# load the trained model and scaler
 model = joblib.load("cluster_classifier.pkl")
 scaler = joblib.load("scaler.pkl")
 
-# Cluster interpretations (based on our earlier analysis)
+
+
+# cluster interpretations based on the earlier analysis
 cluster_names = {
     0: "Mature Moderate Spenders",
     1: "Young Average Earners",
@@ -20,9 +24,9 @@ def predict_cluster(age, income, spending_score, savings, credit_score):
     cluster = model.predict(input_scaled)[0]
     return cluster, cluster_names.get(cluster, "Unknown")
 
-# --- Interactive loop ---
+
 if __name__ == "__main__":
-    print("🏬 Customer Segment Predictor")
+    print("Customer Segment Predictor")
     print("Enter a new customer's details to find their segment.\n")
 
     while True:
@@ -34,15 +38,13 @@ if __name__ == "__main__":
             credit = float(input("Credit Score: "))
 
             cluster_num, cluster_name = predict_cluster(age, income, spending, savings, credit)
-            print(f"\n➡️ Predicted Segment: Cluster {cluster_num} — {cluster_name}\n")
+            print(f"\nPredicted Segment: Cluster {cluster_num} - {cluster_name}\n")
 
         except ValueError:
             print("Please enter valid numbers.\n")
 
         again = input("Try another customer? (y/n): ")
-        if again.lower() != 'yes':
+        if again.lower() != 'y':
             break
 
     print("Done!")
-
-

@@ -1,9 +1,11 @@
 import pandas as pd
 
+
 # load the dataset
 df = pd.read_csv("mall_customers.csv")
 
-# basic info
+
+# quick look at the data
 print("Shape of dataset:", df.shape)
 print("\nColumn names:", df.columns.tolist())
 print("\nFirst 5 rows:")
@@ -26,11 +28,7 @@ print(df['Preferred Category'].value_counts())
 
 
 
-
-
-
-
-# fix missing Age Group by deriving it from Age
+# age group had a few missing values, so deriving it from age instead
 def get_age_group(age):
     if age <= 25:
         return "18-25"

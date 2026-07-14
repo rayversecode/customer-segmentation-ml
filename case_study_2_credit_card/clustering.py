@@ -1,23 +1,29 @@
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
+from sklearn.cluster import DBSCAN
+from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score
 import matplotlib.pyplot as plt
 
-# Load data
-df = pd.read_csv("CC GENERAL.csv")  # adjust filename if different
 
-# Handle missing values
-# CREDIT_LIMIT: only 1 missing, fill with median
+# load data
+df = pd.read_csv("CC GENERAL.csv")
+
+
+# credit_limit only had 1 missing value, filling with median
 df['CREDIT_LIMIT'] = df['CREDIT_LIMIT'].fillna(df['CREDIT_LIMIT'].median())
 
-# MINIMUM_PAYMENTS: 313 missing, fill with median
+
+# minimum_payments had 313 missing values, also filling with median
 df['MINIMUM_PAYMENTS'] = df['MINIMUM_PAYMENTS'].fillna(df['MINIMUM_PAYMENTS'].median())
 
 print("Missing values after cleaning:")
 print(df.isnull().sum().sum(), "total missing values remaining")
 
-# Select features for clustering (drop CUST_ID, it's just an identifier)
+
+
+# selecting features for clustering, dropping cust_id since it's just an identifier
 features = ['BALANCE', 'BALANCE_FREQUENCY', 'PURCHASES', 'ONEOFF_PURCHASES',
             'INSTALLMENTS_PURCHASES', 'CASH_ADVANCE', 'PURCHASES_FREQUENCY',
             'CASH_ADVANCE_FREQUENCY', 'CASH_ADVANCE_TRX', 'PURCHASES_TRX',
@@ -25,17 +31,14 @@ features = ['BALANCE', 'BALANCE_FREQUENCY', 'PURCHASES', 'ONEOFF_PURCHASES',
 
 X = df[features]
 
-# Scale features
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
 
 
 
-from sklearn.decomposition import PCA
-
-# --- PCA: reduce dimensions before clustering ---
-pca = PCA(n_components=0.90, random_state=42)  # keep enough components to explain 90% of variance
+# reducing dimensions with pca before clustering, since raw features gave weak silhouette scores
+pca = PCA(n_components=0.90, random_state=42)
 X_pca = pca.fit_transform(X_scaled)
 
 print(f"\nOriginal number of features: {X_scaled.shape[1]}")
@@ -46,7 +49,7 @@ print(f"Total variance explained: {pca.explained_variance_ratio_.sum():.3f}")
 
 
 
-# --- Elbow Method ---
+# elbow method to find a good number of clusters
 inertia = []
 k_range = range(1, 11)
 
@@ -67,9 +70,7 @@ plt.show()
 
 
 
-
-
-# --- Compare silhouette scores across different k values ---
+# checking silhouette scores across a range of k values
 print("\nSilhouette scores for different k values:")
 for k in range(2, 8):
     kmeans_test = KMeans(n_clusters=k, random_state=42, n_init=10)
@@ -80,10 +81,7 @@ for k in range(2, 8):
 
 
 
-
-
-
-# --- Final K-Means with k=2 ---
+# building the final k-means model, k=2 gave the best silhouette score here
 optimal_k = 2
 kmeans = KMeans(n_clusters=optimal_k, random_state=42, n_init=10)
 df['Cluster'] = kmeans.fit_predict(X_pca)
@@ -100,11 +98,7 @@ print(f"\nFinal Silhouette Score (k={optimal_k}): {final_silhouette:.3f}")
 
 
 
-
-
-
-
-# --- Visualize clusters using first 2 PCA components ---
+# visualizing clusters using the first two pca components
 plt.figure(figsize=(10, 6))
 scatter = plt.scatter(X_pca[:, 0], X_pca[:, 1], c=df['Cluster'], cmap='viridis', s=20, alpha=0.6)
 plt.xlabel('Principal Component 1')
@@ -118,10 +112,7 @@ plt.show()
 
 
 
-
-from sklearn.cluster import DBSCAN
-
-# --- DBSCAN Clustering ---
+# dbscan as a third algorithm for comparison
 dbscan = DBSCAN(eps=0.8, min_samples=10)
 df['DBSCAN_Cluster'] = dbscan.fit_predict(X_pca)
 
@@ -137,7 +128,6 @@ if n_clusters_dbscan > 1:
     print(f"DBSCAN Silhouette Score (excluding noise): {dbscan_silhouette:.3f}")
     print(f"Points classified as noise: {(df['DBSCAN_Cluster'] == -1).sum()} out of {len(df)}")
 
-# Visualize DBSCAN clusters using first 2 PCA components
 plt.figure(figsize=(10, 6))
 scatter = plt.scatter(X_pca[:, 0], X_pca[:, 1], c=df['DBSCAN_Cluster'], cmap='tab10', s=20, alpha=0.6)
 plt.xlabel('Principal Component 1')

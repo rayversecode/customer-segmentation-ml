@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv("CC GENERAL.csv")  # adjust filename if different
+df = pd.read_csv("CC GENERAL.csv")
 
 print("Shape of dataset:", df.shape)
 print("\nColumn names:", df.columns.tolist())
